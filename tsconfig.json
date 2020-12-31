@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "ES2015",
+    "target": "ES2020",
     "lib": [
       "ES2015",
       "ES2016",
@@ -19,6 +19,7 @@
     "outDir": "./dist/",
     "declaration": true,
     "removeComments": false,
+    "resolveJsonModule": true,
     "alwaysStrict": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
@@ -29,7 +30,6 @@
   "include": [
     "./index.ts",
     "./lib/**/*.ts",
-    "./tests/**/*.test.js",
-    "./.eslintrc.js",
+    "./.eslintrc.js"
   ]
 }

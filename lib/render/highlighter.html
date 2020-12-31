@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.5.0/styles/tomorrow-night.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>SC CDN Text Viewer</title>
+  <style>
+    body {
+      background-color: #1d1f21
+    }
+
+    .hljs-ln td.hljs-ln-numbers {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      text-align: center;
+      color: #ccc;
+      border-right: 1px solid #1d1f21;
+      vertical-align: top;
+      padding-right: 20px;
+    }
+
+    .hljs-ln-code {
+      padding-left: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <pre><code>%FILE%</code></pre>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
+  <script>hljs.initHighlightingOnLoad()</script>
+  <script>hljs.initLineNumbersOnLoad()</script>
+</body>
+
+</html>

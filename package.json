@@ -1,13 +1,13 @@
 {
-  "name": "ts.boilerplate.name",
-  "description": "ts.boilerplate.description",
+  "name": "sc-cdn-server",
+  "description": "Amethyst Simple Content Distribution Server",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Samuel J Voeller <samuel.voeller@amethyst.live> (https://chat.amethyst.live/)",
   "contributors": [],
-  "homepage": "https://github.com/amethyst-studio/ts.boilerplate.name",
+  "homepage": "https://github.com/amethyst-studio/sc-cdn-server",
   "repository": {
-    "url": "git@github.com/amethyst-studio/ts.boilerplate.name.git"
+    "url": "git@github.com/amethyst-studio/sc-cdn-server.git"
   },
   "engines": {
     "node": ">=10.0.0",
@@ -16,20 +16,12 @@
   "engineStrict": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "/dist/",
-    "/package.json",
-    "/README.md",
-    "/LICENSE.md"
-  ],
   "scripts": {
     "stage:eslint": "eslint .",
-    "stage:build": "npx tsc --build",
-    "stage:tests": "mocha './tests/**/*.js'",
-    "project:build": "npm run stage:eslint && npm run stage:build && npm run stage:tests",
-    "project:upgrade": "npx npm-check-updates -u --target latest && wget https://www.toptal.com/developers/gitignore/api/node,yarn,webstorm+all,visualstudiocode,vscode -O ./.gitignore",
-    "project:generate-docs": "typedoc --mode file --out ./docs/ ./lib/",
-    "prepack": "npm run project:build"
+    "project:build": "npm run stage:eslint",
+    "project:start": "npm run project:build && ts-node index.ts",
+    "project:upgrade": "npx npm-check-updates -u --target latest && wget https://www.toptal.com/developers/gitignore/api/node,yarn,webstorm+all,visualstudiocode,vscode -O ./.gitignore && cat ./custom.gitignore >> .gitignore",
+    "project:generate-docs": "typedoc --out ./docs/ ./lib/"
   },
   "husky": {
     "hooks": {
@@ -40,9 +32,9 @@
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",
-    "@types/node": "^14.14.16",
-    "@typescript-eslint/eslint-plugin": "^4.11.0",
-    "@typescript-eslint/parser": "^4.11.0",
+    "@types/node": "^14.14.17",
+    "@typescript-eslint/eslint-plugin": "^4.11.1",
+    "@typescript-eslint/parser": "^4.11.1",
     "chai": "^4.2.0",
     "eslint": "^7.16.0",
     "eslint-config-standard": "^16.0.2",
@@ -55,10 +47,32 @@
     "eslint-plugin-tsdoc": "^0.2.10",
     "husky": "^4.3.6",
     "mocha": "^8.2.1",
-    "typedoc": "^0.19.2",
+    "typedoc": "^0.20.5",
     "typescript": "^4.1.3"
   },
   "peerDependencies": {},
-  "dependencies": {},
+  "dependencies": {
+    "@oauth-everything/passport-discord": "^1.0.2",
+    "@types/luxon": "^1.25.0",
+    "@types/mime-types": "^2.1.0",
+    "@types/ms": "^0.7.31",
+    "@types/restify": "^8.4.2",
+    "@types/restify-errors": "^4.3.3",
+    "amethyst-hv": "^0.1.1",
+    "bandwidth-throttle-stream": "^1.1.1",
+    "cryptocipher": "^3.0.5",
+    "dotenv": "^8.2.0",
+    "k-value": "^1.1.2",
+    "luxon": "^1.25.0",
+    "mime-types": "^2.1.27",
+    "ms": "^2.1.3",
+    "mysql2": "^2.2.5",
+    "passport": "^0.4.1",
+    "passport-restify": "^1.0.1",
+    "restify": "^8.5.1",
+    "restify-errors": "^8.0.2",
+    "ts-node": "^9.1.1"
+  },
+  "private": true,
   "root": true
 }
