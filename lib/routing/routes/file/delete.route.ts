@@ -1,6 +1,6 @@
 import { mkdir, rm } from 'fs/promises'
 import { resolve } from 'path'
-import { Next, Request, Response } from 'restify'
+import { Next, plugins, Request, Response } from 'restify'
 import { NotFoundError } from 'restify-errors'
 import { CDNServer } from '../../../..'
 import { AuthMW } from '../../middleware/auth.verify'
@@ -14,6 +14,12 @@ export class Route extends GenericRoute {
       path: '/v1/-/delete/:content_id',
       allow: 'del',
       middleware: [
+        plugins.throttle({
+          burst: 0,
+          rate: 0.5,
+          xff: true,
+          maxKeys: 65535
+        }),
         AuthMW.email,
         AuthMW.token
       ],

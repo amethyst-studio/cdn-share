@@ -2,7 +2,7 @@ import { createReadStream, readFileSync } from 'fs'
 import { readFile, stat } from 'fs/promises'
 import { lookup } from 'mime-types'
 import { extname, resolve } from 'path'
-import { Next, Request, Response } from 'restify'
+import { Next, plugins, Request, Response } from 'restify'
 import { NotFoundError } from 'restify-errors'
 import { CDNServer } from '../../../../'
 import { GenericRoute } from '../../route'
@@ -17,6 +17,12 @@ export class Route extends GenericRoute {
       path: '/-/:namespace_id/:content_id',
       allow: 'get',
       middleware: [
+        plugins.throttle({
+          burst: 4,
+          rate: 8.0,
+          xff: true,
+          maxKeys: 65535
+        })
       ],
       contributors: {
         maintainer: {
@@ -62,9 +68,9 @@ export class Route extends GenericRoute {
         return await response.end()
       }
       case 'image': {
-        const type = lookup(extname(index.uploaded.name))
+        const type = lookup(extname(index.upload.name))
         await response.writeHead(200, {
-          'Content-Length': index.uploaded.size,
+          'Content-Length': index.upload.size,
           'Content-Type': type as string
         })
         await response.write(await readFile(index.file as string))
@@ -72,13 +78,13 @@ export class Route extends GenericRoute {
       }
       case 'binary':
       default: {
-        const type = lookup(extname(index.uploaded.name))
+        const type = lookup(extname(index.upload.name))
         const stream = createReadStream(index.file as string)
         await response.writeHead(200, {
-          'Content-Length': index.uploaded.size,
+          'Content-Length': index.upload.size,
           'Content-Type': (type === undefined || index.type?.toLowerCase() === 'binary' ? 'application/octet-stream' : type as string)
         })
-        const throttle = this.server.responseThrottler.createBandwidthThrottle(index.uploaded.size)
+        const throttle = this.server.responseThrottler.createBandwidthThrottle(index.upload.size)
         request.once('aborted', () => {
           return throttle.abort()
         })

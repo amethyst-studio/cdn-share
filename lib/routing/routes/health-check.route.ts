@@ -1,4 +1,4 @@
-import { Request, Response } from 'restify'
+import { plugins, Request, Response } from 'restify'
 import { CDNServer } from '../../../'
 import { GenericRoute } from '../route'
 
@@ -9,7 +9,14 @@ export class Route extends GenericRoute {
     this.configure({
       path: '/v1/-/health-check',
       allow: 'get',
-      middleware: [],
+      middleware: [
+        plugins.throttle({
+          burst: 0,
+          rate: 0.5,
+          xff: true,
+          maxKeys: 65535
+        })
+      ],
       contributors: {
         maintainer: {
           name: 'Samuel J Voeller',

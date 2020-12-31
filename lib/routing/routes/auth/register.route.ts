@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
 import { getHasher } from 'cryptocipher'
-import { Next, Request, Response } from 'restify'
+import { Next, plugins, Request, Response } from 'restify'
 import { BadRequestError, ConflictError } from 'restify-errors'
 import { CDNServer } from '../../../../index'
 import { GenericRoute } from '../../route'
@@ -12,7 +12,14 @@ export class Route extends GenericRoute {
     this.configure({
       path: '/v1/auth/-/user/register',
       allow: 'post',
-      middleware: [],
+      middleware: [
+        plugins.throttle({
+          burst: 0,
+          rate: 0.5,
+          xff: true,
+          maxKeys: 65535
+        })
+      ],
       contributors: {
         maintainer: {
           name: 'Samuel J Voeller',

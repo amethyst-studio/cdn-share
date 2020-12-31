@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
 import { getHasher } from 'cryptocipher'
-import { Next, Request, Response } from 'restify'
+import { Next, plugins, Request, Response } from 'restify'
 import { CDNServer } from '../../../../index'
 import { AuthMW } from '../../middleware/auth.verify'
 import { GenericRoute } from '../../route'
@@ -13,6 +13,12 @@ export class Route extends GenericRoute {
       path: '/v1/auth/-/token/reset',
       allow: 'post',
       middleware: [
+        plugins.throttle({
+          burst: 0,
+          rate: 0.5,
+          xff: true,
+          maxKeys: 65535
+        }),
         AuthMW.email,
         AuthMW.token
       ],
