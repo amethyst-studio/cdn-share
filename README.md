@@ -19,8 +19,7 @@ If you are ever having any trouble, I would greatly recommend visiting the Wiki 
 Configure your environment with both the `.env.template` and `ecosystem.config.json`, although we do not recommend changing the ecosystem at this time, if it can be helped.
 
 ```bash
-bash ./scripts/install.sh
-bash ./scripts/upgrade.sh # If Upgrading
+bash ./scripts/upgrade.sh # For initial install and future upgrades, run this script.
 pm2 start ecosystem.config.js
 ```
 
