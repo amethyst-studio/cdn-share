@@ -29,8 +29,8 @@ const developer = {
   env: {
     NODE_ENV: 'development',
     PRODUCTION_MODE: false,
-    BIND_ADDRESS: process.env.BIND_ADDRESS || '0.0.0.0',
-    PORTAL_PORT: process.env.BIND_PORT || 3100
+    BIND_ADDRESS: '0.0.0.0',
+    PORTAL_PORT: 3100
   },
   exec_mode: 'fork'
 }
