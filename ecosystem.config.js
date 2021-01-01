@@ -1,3 +1,4 @@
+require('dotenv').config()
 
 // Production Version of SC-CDN
 const production = {
@@ -10,8 +11,8 @@ const production = {
   env: {
     NODE_ENV: 'production',
     PRODUCTION_MODE: true,
-    BIND_ADDRESS: '0.0.0.0',
-    PORTAL_PORT: 3000
+    BIND_ADDRESS: process.env.BIND_ADDRESS || '0.0.0.0',
+    PORTAL_PORT: process.env.BIND_ADDRESS || 3000
   },
   exec_mode: 'cluster',
   instances: 4
@@ -28,8 +29,8 @@ const developer = {
   env: {
     NODE_ENV: 'development',
     PRODUCTION_MODE: false,
-    BIND_ADDRESS: '0.0.0.0',
-    PORTAL_PORT: 3100
+    BIND_ADDRESS: process.env.BIND_ADDRESS || '0.0.0.0',
+    PORTAL_PORT: process.env.BIND_PORT || 3100
   },
   exec_mode: 'fork'
 }
