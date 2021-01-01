@@ -16,10 +16,12 @@ You can visit our [GitHub Wiki](https://github.com/amethyst-studio/sc-cdn-server
 
 If you are ever having any trouble, I would greatly recommend visiting the Wiki or opening a discussion to ask us questions directly. Issues will be converted to discussions if they do not follow the pre-determined issue templates.
 
-```
-npm install -g ts-node
-npm install --only=production
-pm2 start ts-node -- ./index.ts
+Configure your environment with both the `.env.template` and `ecosystem.config.json`, although we do not recommend changing the ecosystem at this time, if it can be helped.
+
+```bash
+bash ./scripts/install.sh
+bash ./scripts/upgrade.sh # If Upgrading
+pm2 start ecosystem.config.js
 ```
 
 ## API Documentation
