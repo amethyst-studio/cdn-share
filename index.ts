@@ -7,6 +7,7 @@ import { ConsoleOverride } from 'amethyst-hv/dist/lib/engine/logger'
 import { createBandwidthThrottleGroup } from 'bandwidth-throttle-stream'
 import { DateTime } from 'luxon'
 import { rm } from 'fs/promises'
+import morgan from 'morgan'
 
 // .ENV FILE
 dotenv.config()
@@ -74,6 +75,7 @@ export class CDNServer {
     new AuthMW().setServer(this)
 
     // Restify Middleware Initialization
+    this.server.use(morgan('combined'))
     this.server.use(plugins.queryParser())
     this.server.use(plugins.bodyParser({
       maxBodySize: 2147483648,
