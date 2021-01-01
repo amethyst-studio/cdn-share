@@ -15,8 +15,6 @@ bash ./scripts/upgrade.sh # For initial install and future upgrades, run this sc
 pm2 start ecosystem.config.js
 ```
 
-```
-
 ## Examples
 
 You can visit our [GitHub Wiki](https://github.com/amethyst-studio/static-content-network/wiki) for information in setting up and using this service.
