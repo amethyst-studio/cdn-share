@@ -235,3 +235,4 @@ modules.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/node,yarn,webstorm+all,visualstudiocode,vscode
 /namespace/
+/namespace.devel/

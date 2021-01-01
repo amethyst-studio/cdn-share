@@ -58,7 +58,7 @@ export class CDNServer {
   // Initialize File Meta Index
   readonly index = new MySQLAdapter({
     authentication,
-    table: 'cdn.index',
+    table: `cdn.index${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}`,
     encoder: {
       use: true,
       store: 'base64',

@@ -8,7 +8,8 @@ export async function runIndexPurge (indexTable: MySQLAdapter): Promise<void> {
 
     if (await stat(index.file).catch(() => { return null }) === null) {
       console.warn(
-        `MISSING_FILE_FOR(${key}) [${index.file as string}]`,
+        `MISSING_FILE_FOR(${key})`,
+        `${index.file as string}`,
         'The requested file was missing or corrupted, and the referenced index has been removed.'
       )
       await indexTable.delete(key)

@@ -51,7 +51,7 @@ export class Route extends GenericRoute {
 
     // Generate Namespace Directory
     const profile = await this.server.users.get(email)
-    await mkdir(resolve(__dirname, `../../../../namespace/${profile.namespace as string}`), { recursive: true })
+    await mkdir(resolve(__dirname, `../../../../namespace${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}/${profile.namespace as string}`), { recursive: true })
 
     // Generate Object Hash
     const hasher = getHasher('sha1')
@@ -61,7 +61,7 @@ export class Route extends GenericRoute {
     })
     if (name !== undefined) seed.content = basename(name, extname(name))
 
-    const file = resolve(__dirname, `../../../../namespace/${profile.namespace as string}/${seed.content}${extension}`)
+    const file = resolve(__dirname, `../../../../namespace${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}/${profile.namespace as string}/${seed.content}${extension}`)
     let st = await stat(file).catch(() => { return null })
 
     if (name !== undefined && st !== null) {
