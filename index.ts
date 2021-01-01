@@ -97,7 +97,7 @@ export class CDNServer {
         'Thank you for downloading the Amethyst Studio Content Distribution Service.',
         'We have indicated that this application has never been configured before, or encountered some kind of database exception.',
         'Please identify and access the service to create your initial account. This account will be considered the system administrator.',
-        `https://${process.env.PORTAL_TLD as string}/v1/users/register?email=you@domain.tld&password=setYourPasswordHere`
+        `https://your-domain.tld:${process.env.PORTAL_POT as string}/v1/users/register?email=you@domain.tld&password=setYourPasswordHere`
       )
     }
   }
@@ -109,9 +109,8 @@ export class CDNServer {
 
   // Listen on Restify Server w/ Notification
   async listen (port: number): Promise<void> {
-    this.server.listen(port)
-
-    console.info(`Listening for requests on 0.0.0.0:${port}`)
+    this.server.listen(port, process.env.BIND_ADDRESS as string)
+    console.info(`Listening for requests on ${process.env.BIND_ADDRESS as string}:${port}`)
   }
 }
 

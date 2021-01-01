@@ -16,7 +16,6 @@
       "chai",
       "mocha"
     ],
-    "outDir": "./dist/",
     "declaration": true,
     "removeComments": false,
     "resolveJsonModule": true,
@@ -30,6 +29,7 @@
   "include": [
     "./index.ts",
     "./lib/**/*.ts",
-    "./.eslintrc.js"
+    "./.eslintrc.js",
+    "./ecosystem.config.js"
   ]
 }

@@ -16,10 +16,7 @@ module.exports = {
     'eslint:recommended',
     'standard-with-typescript'
   ],
-  ignorePatterns: [
-    '/dist/',
-    '/docs/'
-  ],
+  ignorePatterns: [],
   env: {
     mocha: true
   },
