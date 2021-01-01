@@ -19,10 +19,9 @@
   "scripts": {
     "stage:eslint": "eslint .",
     "project:build": "npm run stage:eslint",
-    "project:start-dev": "npm run project:build && ts-node index.ts",
+    "project:start-dev": "ts-node index.ts",
     "project:start": "ts-node index.ts",
-    "project:upgrade": "npx npm-check-updates -u --target latest && wget https://www.toptal.com/developers/gitignore/api/node,yarn,webstorm+all,visualstudiocode,vscode -O ./.gitignore && cat ./custom.gitignore >> .gitignore",
-    "project:generate-docs": "typedoc --out ./docs/ ./lib/"
+    "project:upgrade": "npx npm-check-updates -u --target latest && wget https://www.toptal.com/developers/gitignore/api/node,yarn,webstorm+all,visualstudiocode,vscode -O ./.gitignore && cat ./custom.gitignore >> .gitignore"
   },
   "husky": {
     "hooks": {
