@@ -5,7 +5,7 @@
 Everything comes pre-packaged with just running `npm install`, which will configure TypeScript, ESLint StandardJS/TS, and other 3rd party development dependencies.
 
 ```bash
-git clone https://github.com/amethyst-studio/sc-cdn-server
+git clone https://github.com/amethyst-studio/static-content-network
 npm install
 npm run project:build # Confirm everything is working.
 ```
