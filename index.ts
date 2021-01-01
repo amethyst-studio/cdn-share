@@ -1,13 +1,13 @@
-import * as dotenv from 'dotenv'
-import { MySQLAdapter } from 'k-value'
-import { createServer, plugins, Server } from 'restify'
-import { RouteLoader } from './lib/routing/route'
-import { AuthMW } from './lib/routing/middleware/auth.verify'
 import { ConsoleOverride } from 'amethyst-hv/dist/lib/engine/logger'
 import { createBandwidthThrottleGroup } from 'bandwidth-throttle-stream'
-import { DateTime } from 'luxon'
-import { rm } from 'fs/promises'
+import * as dotenv from 'dotenv'
+import { MySQLAdapter } from 'k-value'
 import morgan from 'morgan'
+import { createServer, plugins, Server } from 'restify'
+import { runExpire } from './lib/helper/expire'
+import { runIndexPurge } from './lib/helper/purge'
+import { AuthMW } from './lib/routing/middleware/auth.verify'
+import { RouteLoader } from './lib/routing/route'
 
 // .ENV FILE
 dotenv.config()
@@ -15,7 +15,7 @@ dotenv.config()
 // Load Logging Interface
 export const logger = new ConsoleOverride()
 
-// DB Authentication
+// DB Authentication Credentials
 const authentication = {
   host: process.env.MYSQL_HOSTNAME as string,
   port: 3306,
@@ -27,11 +27,13 @@ const authentication = {
 export class CDNServer {
   initialization: boolean
 
+  // Restify Server
   readonly server: Server = createServer({
     name: 'cdn-portal',
     version: '1'
   })
 
+  // Initialize Users Index
   readonly users = new MySQLAdapter({
     authentication,
     table: 'cdn.users',
@@ -42,6 +44,7 @@ export class CDNServer {
     }
   })
 
+  // Initialize Namespace Meta Index
   readonly namespaces = new MySQLAdapter({
     authentication,
     table: 'cdn.namespaces',
@@ -52,6 +55,7 @@ export class CDNServer {
     }
   })
 
+  // Initialize File Meta Index
   readonly index = new MySQLAdapter({
     authentication,
     table: 'cdn.index',
@@ -67,6 +71,7 @@ export class CDNServer {
   })
 
   async setup (): Promise<void> {
+    // Configure key-value Database
     await this.users.configure()
     await this.namespaces.configure()
     await this.index.configure()
@@ -86,6 +91,7 @@ export class CDNServer {
       keepExtensions: false
     }))
 
+    // Initial Setup Advisory
     if ((await this.users.keys()).length === 0) {
       console.info(
         'Thank you for downloading the Amethyst Studio Content Distribution Service.',
@@ -96,35 +102,20 @@ export class CDNServer {
     }
   }
 
+  // Initialize Routes
   async routes (): Promise<void> {
     await RouteLoader.execute(this)
   }
 
+  // Listen on Restify Server w/ Notification
   async listen (port: number): Promise<void> {
     this.server.listen(port)
 
     console.info(`Listening for requests on 0.0.0.0:${port}`)
   }
-
-  async expire (): Promise<void> {
-    const keys = await this.index.keys()
-    for (const key of keys) {
-      const index = await this.index.get(key)
-      if (index.expire === null) continue
-      const expires = DateTime.fromISO(index.expire)
-      const diff = expires.diff(DateTime.local().toUTC(), ['millisecond'])
-
-      if (diff.milliseconds !== undefined && diff.milliseconds < 0) {
-        await rm(index.file, {
-          recursive: true,
-          force: true
-        }).catch(() => {})
-        await this.index.delete(key)
-      }
-    }
-  }
 }
 
+// TS Self Initialization and Runtime
 async function main (): Promise<void> {
   const srv = new CDNServer()
 
@@ -132,13 +123,29 @@ async function main (): Promise<void> {
   await srv.routes()
   await srv.listen(process.env.PORTAL_PORT as unknown as number)
 
+  // Register Periodic Tasks
+  // Task: Expire
   setInterval((): void => {
-    srv.expire().catch(() => {})
+    runExpire(srv.index).catch((err) => {
+      console.error('Expiring Content Failed', err)
+    })
   }, 15000)
-  srv.expire().catch(() => {})
+  runExpire(srv.index).catch((err) => {
+    console.error('Expiring Content Failed', err)
+  })
+
+  // Task: Index Cleaning
+  setInterval((): void => {
+    runIndexPurge(srv.index).catch((err) => {
+      console.error('Purging Deleted Content Failed', err)
+    })
+  }, 3600000)
+  runIndexPurge(srv.index).catch((err) => {
+    console.error('Purging Deleted Content Failed', err)
+  })
 }
 
 // Initialize Application
-main().catch((error) => {
-  console.error('GUARDIAN EXCEPTION', 'main()#fatal', error)
+main().catch((err) => {
+  console.error('Thread:main():EXCEPTION_GUARD', 'main()#catch', err)
 })
