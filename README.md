@@ -23,10 +23,6 @@ You can visit our [GitHub Wiki](https://github.com/amethyst-studio/sc-cdn-server
 
 If you are ever having any trouble, I would greatly recommend visiting the Wiki or opening a discussion to ask us questions directly. Issues will be converted to discussions if they do not follow the pre-determined issue templates.
 
-## API Documentation
-
-You can find our API Auto-Generated Documentation available at our [GitHub Pages](https://amethyst-studio.github.io/sc-cdn-server/index.html).
-
 ## Contributing
 
 Pull requests are always welcome for all of our projects.
