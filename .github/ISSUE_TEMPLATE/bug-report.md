@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report an issue with sc-cdn-server
+about: Report an issue with static-content-network
 title: '[BUG] Generalized Overview of the Report Here'
 labels: 'Type: Bug, State: Conversation, Status: Unassigned'
 assignees: ''
@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 **Current Installation:**
  - Device: Desktop or Server
  - OS: `uname -a` or Windows Version if you are 32 or 64 bit OS.
- - Version: `npm list | grep 'sc-cdn-server'`
+ - Version: `npm list | grep 'static-content-network'`
 
 **Additional context**
 Add any other context about the problem here.

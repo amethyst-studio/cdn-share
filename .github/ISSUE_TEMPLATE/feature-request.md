@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest new features to sc-cdn-server
+about: Suggest new features to static-content-network
 title: '[FEATURE] Generalized Overview of the Feature Request'
 labels: 'Type: Enhancement, State: Conversation, Status: Unassigned'
 assignees: ''

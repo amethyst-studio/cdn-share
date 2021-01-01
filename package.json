@@ -1,13 +1,13 @@
 {
-  "name": "sc-cdn-server",
+  "name": "static-content-network",
   "description": "Amethyst Simple Content Distribution Server",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Samuel J Voeller <samuel.voeller@amethyst.live> (https://chat.amethyst.live/)",
   "contributors": [],
-  "homepage": "https://github.com/amethyst-studio/sc-cdn-server",
+  "homepage": "https://github.com/amethyst-studio/static-content-network",
   "repository": {
-    "url": "git@github.com/amethyst-studio/sc-cdn-server.git"
+    "url": "git@github.com/amethyst-studio/static-content-network.git"
   },
   "engines": {
     "node": ">=10.0.0",
