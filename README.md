@@ -19,7 +19,7 @@ pm2 start ecosystem.config.js
 
 ## Examples
 
-You can visit our [GitHub Wiki](https://github.com/amethyst-studio/sc-cdn-server/wiki) for information in setting up and using this service.
+You can visit our [GitHub Wiki](https://github.com/amethyst-studio/static-content-network/wiki) for information in setting up and using this service.
 
 If you are ever having any trouble, I would greatly recommend visiting the Wiki or opening a discussion to ask us questions directly. Issues will be converted to discussions if they do not follow the pre-determined issue templates.
 
