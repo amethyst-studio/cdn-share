@@ -20,7 +20,7 @@
     "stage:eslint": "eslint .",
     "project:build": "npm run stage:eslint",
     "project:run": "pm2 start ",
-    "project:ecosystem-start": "pm2 start ecosystem.config.json",
+    "project:ecosystem-start": "pm2 start ecosystem.config.js",
     "project:upgrade": "npx npm-check-updates -u --target latest && wget https://www.toptal.com/developers/gitignore/api/node,yarn,webstorm+all,visualstudiocode,vscode -O ./.gitignore && cat ./custom.gitignore >> .gitignore"
   },
   "husky": {
