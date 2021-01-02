@@ -25,8 +25,6 @@ const authentication = {
 }
 
 export class CDNServer {
-  initialization: boolean
-
   // Restify Server
   readonly server: Server = createServer({
     name: 'cdn-portal',
@@ -144,7 +142,19 @@ async function main (): Promise<void> {
   })
 }
 
-// Initialize Application
-main().catch((err) => {
-  console.error('Thread:main():EXCEPTION_GUARD', 'main()#catch', err)
+main().then(() => {
+  // Post Ready to Service
+  console.info(
+    'RuntimeStatus(READY)',
+    'The CoreService loader has reported as online. Your application should now be fully functional and ready to process requests.'
+  )
+  if (process.send !== undefined) process.send('ready')
+}).catch((err) => {
+  // Post Error to Service when Uncaught Encountered
+  console.error(
+    'RuntimeStatus(EXCEPTION)',
+    'The CoreService loader has encountered a fatal unhandled exception, and will now exit.',
+    err
+  )
+  return process.exit(-127)
 })

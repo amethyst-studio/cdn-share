@@ -19,6 +19,8 @@
   "scripts": {
     "stage:eslint": "eslint .",
     "project:build": "npm run stage:eslint",
+    "project:run": "pm2 start ",
+    "project:ecosystem-start": "pm2 start ecosystem.config.json",
     "project:upgrade": "npx npm-check-updates -u --target latest && wget https://www.toptal.com/developers/gitignore/api/node,yarn,webstorm+all,visualstudiocode,vscode -O ./.gitignore && cat ./custom.gitignore >> .gitignore"
   },
   "husky": {
@@ -41,8 +43,7 @@
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-tsdoc": "^0.2.10",
     "husky": "^4.3.6",
-    "mocha": "^8.2.1",
-    "typedoc": "^0.20.7"
+    "mocha": "^8.2.1"
   },
   "dependencies": {
     "@oauth-everything/passport-discord": "^1.0.2",
