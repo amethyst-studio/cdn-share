@@ -58,7 +58,7 @@
     "bandwidth-throttle-stream": "^1.1.1",
     "cryptocipher": "^3.0.5",
     "dotenv": "^8.2.0",
-    "k-value": "^1.1.2",
+    "k-value": "^1.2.4",
     "luxon": "^1.25.0",
     "mime-types": "^2.1.28",
     "morgan": "^1.10.0",
