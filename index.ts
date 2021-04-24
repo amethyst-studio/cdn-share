@@ -13,7 +13,7 @@ import { RouteLoader } from './lib/routing/route'
 dotenv.config()
 
 // Load Logging Interface
-export const logger = new ConsoleOverride()
+export const logger = new ConsoleOverride({}, true)
 
 // DB Authentication Credentials
 const authentication = {
