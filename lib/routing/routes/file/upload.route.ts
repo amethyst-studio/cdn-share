@@ -42,8 +42,12 @@ export class Route extends GenericRoute {
 
     const upload = request.files?.upload
 
-    if (upload === undefined) {
+    if (upload === undefined || upload === null) {
       return next(new UnsupportedMediaTypeError('You must specify the uploaded file using upload as the parameter or multi-part body request key.'))
+    }
+
+    if (upload.name === undefined || upload.name === null) {
+      return next(new UnsupportedMediaTypeError('You must specify the uploaded file\'s name using name as the parameter or multi-part body request key.'))
     }
 
     // Get Extension or ''
