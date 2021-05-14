@@ -7,7 +7,7 @@ import { basename, extname, resolve } from 'path'
 import { Next, plugins, Request, Response } from 'restify'
 import { ConflictError, UnsupportedMediaTypeError } from 'restify-errors'
 import { CDNServer } from '../../../..'
-import { AuthMW } from '../../middleware/auth.verify'
+import { AuthMiddleware } from '../../middleware/auth.verify'
 import { GenericRoute } from '../../route'
 
 export class Route extends GenericRoute {
@@ -24,8 +24,8 @@ export class Route extends GenericRoute {
           xff: true,
           maxKeys: 65535
         }),
-        AuthMW.email,
-        AuthMW.token
+        AuthMiddleware.email,
+        AuthMiddleware.token
       ]
     })
   }

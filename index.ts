@@ -6,7 +6,7 @@ import morgan from 'morgan'
 import { createServer, plugins, Server } from 'restify'
 import { runExpire } from './lib/helper/expire'
 import { runIndexPurge } from './lib/helper/purge'
-import { AuthMW } from './lib/routing/middleware/auth.verify'
+import { AuthMiddleware } from './lib/routing/middleware/auth.verify'
 import { RouteLoader } from './lib/routing/route'
 
 // .ENV FILE
@@ -64,6 +64,7 @@ export class CDNServer {
     }
   })
 
+  // Bandwidth Throttler
   readonly responseThrottler = createBandwidthThrottleGroup({
     bytesPerSecond: 104857600
   })
@@ -75,7 +76,7 @@ export class CDNServer {
     await this.index.configure()
 
     // Internal Middleware Initialization
-    new AuthMW().setServer(this)
+    new AuthMiddleware().setServer(this)
 
     // Restify Middleware Initialization
     this.server.use(morgan('combined'))
@@ -93,9 +94,10 @@ export class CDNServer {
     if ((await this.users.keys()).length === 0) {
       console.info(
         'Thank you for downloading the Amethyst Studio Content Distribution Service.',
-        'We have indicated that this application has never been configured before, or encountered some kind of database exception.',
-        'Please identify and access the service to create your initial account. This account will be considered the system administrator.',
-        `https://your-domain.tld:${process.env.PORTAL_POT as string}/v1/users/register?email=you@domain.tld&password=setYourPasswordHere`
+        'We have indicated that this application has never been configured before, or encountered some kind of database critical error.',
+        'Please identify and access the service to create your first account. This account will be considered the server administrator.',
+        'Also note that, if using an insecure network, each query flag may also alternatively be passed as multi-part body elements.',
+        'https://your-domain.tld/v1/users/register?email=you@domain.tld&password=setYourPasswordHere'
       )
     }
   }
@@ -123,20 +125,24 @@ async function main (): Promise<void> {
   // Register Periodic Tasks
   // Task: Expire
   setInterval((): void => {
+    console.warn('RuntimeStatus(TASK)', 'CoreService Expire Task Executed')
     runExpire(srv.index).catch((err) => {
       console.error('Expiring Content Failed', err)
     })
   }, 15000)
+  console.warn('RuntimeStatus(TASK)', 'CoreService Expire Task Executed')
   runExpire(srv.index).catch((err) => {
     console.error('Expiring Content Failed', err)
   })
 
   // Task: Index Cleaning
   setInterval((): void => {
+    console.warn('RuntimeStatus(TASK)', 'CoreService Purge Task Executed')
     runIndexPurge(srv.index).catch((err) => {
       console.error('Purging Deleted Content Failed', err)
     })
   }, 3600000)
+  console.warn('RuntimeStatus(TASK)', 'CoreService Purge Task Executed')
   runIndexPurge(srv.index).catch((err) => {
     console.error('Purging Deleted Content Failed', err)
   })

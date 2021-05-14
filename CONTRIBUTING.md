@@ -7,7 +7,7 @@ Everything comes pre-packaged with just running `npm install`, which will config
 ```bash
 git clone https://github.com/amethyst-studio/static-content-network
 npm install
-npm run project:build # Confirm everything is working.
+npm run runEslint # Confirm everything is working.
 ```
 
 ## Our Environment

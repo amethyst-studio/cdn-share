@@ -40,22 +40,22 @@ export class Route extends GenericRoute {
 
     // Generate API Token
     const hasher = getHasher('sha512')
-    const randomness = randomBytes(96)
-    randomBytes(96).copy(randomness, Math.floor(Math.random() * 64), Math.floor(Math.random() * 64))
+    const seedForRandom = randomBytes(96)
+    randomBytes(96).copy(seedForRandom, Math.floor(Math.random() * 64), Math.floor(Math.random() * 64))
     const seed = await hasher.digest({
-      content: randomness.toString('base64') + Date.now().toLocaleString(),
+      content: seedForRandom.toString('base64') + Date.now().toLocaleString(),
       digest: 'hex',
       iter: 25
     })
 
     // Generate Namespace and Verify Unique Status
     let addr = 0
-    let _genNS = randomBytes(4).toString('hex')
-    while (await this.server.namespaces.has(_genNS)) {
-      _genNS = randomBytes(4 + addr).toString('hex')
+    let generatedNamespace = randomBytes(4).toString('hex')
+    while (await this.server.namespaces.has(generatedNamespace)) {
+      generatedNamespace = randomBytes(4 + addr).toString('hex')
       addr = addr + 1
     }
-    await this.server.namespaces.set((namespace !== undefined ? namespace : _genNS), {
+    await this.server.namespaces.set((namespace !== undefined ? namespace : generatedNamespace), {
       email
     })
 
@@ -68,7 +68,7 @@ export class Route extends GenericRoute {
         iter: 20000
       })).content,
       token: seed.content,
-      namespace: (namespace !== undefined ? namespace : _genNS),
+      namespace: (namespace !== undefined ? namespace : generatedNamespace),
       role: ((await this.server.users.keys()).length === 0 ? 'ADMIN' : 'USER')
     })
 
@@ -78,7 +78,7 @@ export class Route extends GenericRoute {
       message: 'Registration has been completed. The following access token will be used for accessing the API. Should this token become compromised or lost, you can reset or recover this token at the following endpoints.',
       body: {
         'Authorization-Token': seed.content,
-        'Namespace-ID': (namespace !== undefined ? namespace : _genNS),
+        'Namespace-ID': (namespace !== undefined ? namespace : generatedNamespace),
         'Lost-Token': `/v1/auth/-/token/lost?email=${email as string}&password=yourPassword`,
         'Reset-Token': `/v1/auth/-/token/reset?email=${email as string}&password=yourPassword&token=currentToken`
       }
