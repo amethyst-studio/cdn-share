@@ -14,8 +14,6 @@
     "npm": ">6.14.0"
   },
   "engineStrict": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "scripts": {
     "prepare": "husky install",
     "runEslint": "eslint .",
