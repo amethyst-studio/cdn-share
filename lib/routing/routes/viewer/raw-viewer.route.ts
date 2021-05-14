@@ -21,14 +21,7 @@ export class Route extends GenericRoute {
           xff: true,
           maxKeys: 65535
         })
-      ],
-      contributors: {
-        maintainer: {
-          name: 'Samuel J Voeller',
-          email: 'samuel.voeller@amethyst.live',
-          previous: []
-        }
-      }
+      ]
     })
   }
 
@@ -55,29 +48,22 @@ export class Route extends GenericRoute {
       return next(new NotFoundError('The requested content was not found on the server.'))
     }
 
-    switch (index.type?.toLowerCase() as string) {
-      case 'text':
-      case 'image':
-      case 'binary':
-      default: {
-        const type = lookup(extname(index.upload.name))
-        const stream = createReadStream(index.file as string)
-        await response.writeHead(200, {
-          'Content-Length': index.upload.size,
-          'Content-Type': (type === undefined || index.type?.toLowerCase() === 'binary' ? 'application/octet-stream' : type as string)
-        })
-        const throttle = this.server.responseThrottler.createBandwidthThrottle(index.upload.size)
-        request.once('aborted', () => {
-          return throttle.abort()
-        })
-        await stream.pipe(throttle)
-          .on('data', (chunk) => {
-            return response.write(chunk)
-          })
-          .on('end', () => {
-            return response.end()
-          })
-      }
-    }
+    const type = lookup(extname(index.upload.name))
+    const stream = createReadStream(index.file as string)
+    await response.writeHead(200, {
+      'Content-Length': index.upload.size,
+      'Content-Type': (type === undefined || index.type?.toLowerCase() === 'binary' ? 'application/octet-stream' : type as string)
+    })
+    const throttle = this.server.responseThrottler.createBandwidthThrottle(index.upload.size)
+    request.once('aborted', () => {
+      return throttle.abort()
+    })
+    await stream.pipe(throttle)
+      .on('data', (chunk) => {
+        return response.write(chunk)
+      })
+      .on('end', () => {
+        return response.end()
+      })
   }
 }

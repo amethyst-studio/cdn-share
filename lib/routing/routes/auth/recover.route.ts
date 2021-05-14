@@ -19,14 +19,7 @@ export class Route extends GenericRoute {
         }),
         AuthMW.email,
         AuthMW.password
-      ],
-      contributors: {
-        maintainer: {
-          name: 'Samuel J Voeller',
-          email: 'samuel.voeller@amethyst.live',
-          previous: []
-        }
-      }
+      ]
     })
   }
 

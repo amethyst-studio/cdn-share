@@ -4,7 +4,8 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     ecmaFeatures: {
-      impliedStrict: true
+      impliedStrict: true,
+      jsx: true
     },
     project: './tsconfig.json'
   },
@@ -14,7 +15,8 @@ module.exports = {
   ],
   extends: [
     'eslint:recommended',
-    'standard-with-typescript'
+    'standard-with-typescript',
+    'plugin:react/recommended'
   ],
   ignorePatterns: [],
   env: {

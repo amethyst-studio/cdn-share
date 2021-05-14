@@ -23,14 +23,7 @@ export class Route extends GenericRoute {
           xff: true,
           maxKeys: 65535
         })
-      ],
-      contributors: {
-        maintainer: {
-          name: 'Samuel J Voeller',
-          email: 'samuel.voeller@amethyst.live',
-          previous: []
-        }
-      }
+      ]
     })
   }
 

@@ -37,7 +37,7 @@ const developer = {
 
 // Dynamically Generate Application List
 const apps = []
-if (process.env.DEV !== undefined) {
+if (process.env.NODE_ENV !== 'production') {
   apps.push(developer)
 } else {
   apps.push(production)
