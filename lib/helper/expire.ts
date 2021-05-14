@@ -1,6 +1,7 @@
 import { rm } from 'fs/promises'
 import { MySQLAdapter } from 'k-value'
 import { DateTime } from 'luxon'
+import { Logging } from '../..'
 
 export async function runExpire (indexTable: MySQLAdapter): Promise<void> {
   const keys = await indexTable.keys()
@@ -11,7 +12,7 @@ export async function runExpire (indexTable: MySQLAdapter): Promise<void> {
     const diff = expires.diff(DateTime.local().toUTC(), ['millisecond'])
 
     if (diff.milliseconds !== undefined && diff.milliseconds < 0) {
-      console.warn(
+      Logging.GetLogger().warn(
         `EXPIRATION_FOR(${key}) [${index.file as string}]`,
         'The indexed file has been expired and is pending removal.'
       )

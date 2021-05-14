@@ -2,7 +2,7 @@ import { walk } from 'amethyst-hv/dist/lib/util/fs/walk'
 import { File } from 'amethyst-hv/dist/lib/util/fs/walk/types/walk.t'
 import { resolve } from 'path'
 import { Next, Request, Response } from 'restify'
-import { CDNServer } from '../../index'
+import { CDNServer, Logging } from '../../index'
 import { RouteOptions } from '../types/generic.t'
 
 /**
@@ -45,7 +45,7 @@ export class RouteLoader {
 
       // Route Handler Dynamic Builder
       await (cdn.server as unknown as RouteLoadable)[route.options.allow](route.options.path, ...route.options.middleware, (request: Request, response: Response, next: Next) => {
-        route.handle(request, response, next).catch((err: Error) => console.error(err))
+        route.handle(request, response, next).catch((err: Error) => Logging.GetLogger().error(err))
       })
     }
   }

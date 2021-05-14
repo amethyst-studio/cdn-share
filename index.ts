@@ -1,9 +1,10 @@
-import { ConsoleOverride } from 'amethyst-hv/dist/lib/engine/logger'
 import { createBandwidthThrottleGroup } from 'bandwidth-throttle-stream'
 import * as dotenv from 'dotenv'
 import { MySQLAdapter } from 'k-value'
 import morgan from 'morgan'
 import { createServer, plugins, Server } from 'restify'
+import type { Logger } from 'winston'
+import { createLogger, format, transports } from 'winston'
 import { runExpire } from './lib/helper/expire'
 import { runIndexPurge } from './lib/helper/purge'
 import { AuthMiddleware } from './lib/routing/middleware/auth.verify'
@@ -13,7 +14,35 @@ import { RouteLoader } from './lib/routing/route'
 dotenv.config()
 
 // Load Logging Interface
-export const logger = new ConsoleOverride({}, true)
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export class Logging {
+  /** Default Logging Interface */
+  public static readonly ILogger: Logger = createLogger({
+    level: 'silly',
+    format: format.combine(
+      format.colorize(),
+      format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+      format.errors({ stack: true }),
+      format.splat(),
+      format.prettyPrint(),
+      format.json(),
+      format.printf(info => `[${info.timestamp as string}] ${info.level}: ${info.message}`)
+    ),
+    defaultMeta: { service: 'discord-client' },
+    transports: [
+      new transports.Console()
+    ]
+  })
+
+  /**
+   * Fetch the default logger functionally.
+   *
+   * @returns - WinstonLogger
+   */
+  public static GetLogger (): Logger {
+    return Logging.ILogger
+  }
+}
 
 // DB Authentication Credentials
 const authentication = {
@@ -92,7 +121,7 @@ export class CDNServer {
 
     // Initial Setup Advisory
     if ((await this.users.keys()).length === 0) {
-      console.info(
+      Logging.GetLogger().info(
         'Thank you for downloading the Amethyst Studio Content Distribution Service.',
         'We have indicated that this application has never been configured before, or encountered some kind of database critical error.',
         'Please identify and access the service to create your first account. This account will be considered the server administrator.',
@@ -110,7 +139,7 @@ export class CDNServer {
   // Listen on Restify Server w/ Notification
   async listen (port: number): Promise<void> {
     this.server.listen(port, process.env.BIND_ADDRESS as string)
-    console.info(`Listening for requests on ${process.env.BIND_ADDRESS as string}:${port}`)
+    Logging.GetLogger().info(`Listening for requests on ${process.env.BIND_ADDRESS as string}:${port}`)
   }
 }
 
@@ -125,41 +154,35 @@ async function main (): Promise<void> {
   // Register Periodic Tasks
   // Task: Expire
   setInterval((): void => {
-    console.warn('RuntimeStatus(TASK)', 'CoreService Expire Task Executed')
     runExpire(srv.index).catch((err) => {
-      console.error('Expiring Content Failed', err)
+      Logging.GetLogger().error('Expiring Content Failed', err)
     })
   }, 15000)
-  console.warn('RuntimeStatus(TASK)', 'CoreService Expire Task Executed')
   runExpire(srv.index).catch((err) => {
-    console.error('Expiring Content Failed', err)
+    Logging.GetLogger().error('Expiring Content Failed', err)
   })
 
   // Task: Index Cleaning
   setInterval((): void => {
-    console.warn('RuntimeStatus(TASK)', 'CoreService Purge Task Executed')
     runIndexPurge(srv.index).catch((err) => {
-      console.error('Purging Deleted Content Failed', err)
+      Logging.GetLogger().error('Purging Deleted Content Failed', err)
     })
   }, 3600000)
-  console.warn('RuntimeStatus(TASK)', 'CoreService Purge Task Executed')
   runIndexPurge(srv.index).catch((err) => {
-    console.error('Purging Deleted Content Failed', err)
+    Logging.GetLogger().error('Purging Deleted Content Failed', err)
   })
 }
 
 main().then(() => {
   // Post Ready to Service
-  console.info(
-    'RuntimeStatus(READY)',
-    'The CoreService loader has reported as online. Your application should now be fully functional and ready to process requests.'
+  Logging.GetLogger().info(
+    'Initialization Finishes... NO_OP @ [0]'
   )
   if (process.send !== undefined) process.send('ready')
 }).catch((err) => {
   // Post Error to Service when Uncaught Encountered
-  console.error(
-    'RuntimeStatus(EXCEPTION)',
-    'The CoreService loader has encountered a fatal unhandled exception, and will now exit.',
+  Logging.GetLogger().error(
+    'Initialization Failure... TERMINATE @ [-127]',
     err
   )
   return process.exit(-127)
