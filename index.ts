@@ -28,7 +28,7 @@ export class Logging {
       format.json(),
       format.printf(info => `[${info.timestamp as string}] ${info.level}: ${info.message}`)
     ),
-    defaultMeta: { service: 'discord-client' },
+    defaultMeta: { service: 'http-client' },
     transports: [
       new transports.Console()
     ]
