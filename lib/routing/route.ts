@@ -1,5 +1,5 @@
 import { walk } from 'amethyst-hv/dist/lib/util/fs/walk'
-import { File } from 'amethyst-hv/dist/lib/util/fs/walk/types/structure'
+import { File } from 'amethyst-hv/dist/lib/util/fs/walk/types/walk.t'
 import { resolve } from 'path'
 import { Next, Request, Response } from 'restify'
 import { CDNServer } from '../../index'

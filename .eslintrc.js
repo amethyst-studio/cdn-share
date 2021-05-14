@@ -15,8 +15,7 @@ module.exports = {
   ],
   extends: [
     'eslint:recommended',
-    'standard-with-typescript',
-    'plugin:react/recommended'
+    'standard-with-typescript'
   ],
   ignorePatterns: [],
   env: {
