@@ -5,7 +5,6 @@ const production = {
   name: 'amethyst-scn',
   script: './node_modules/.bin/ts-node',
   args: [
-    '--trace-deprecation',
     './index.ts',
     '--color'
   ],
@@ -24,7 +23,6 @@ const developer = {
   name: 'amethyst-scn-development',
   script: './node_modules/.bin/ts-node',
   args: [
-    '--trace-deprecation',
     './index.ts',
     '--color'
   ],
