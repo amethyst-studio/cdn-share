@@ -53,7 +53,7 @@ export class Route extends GenericRoute {
     switch (index.type?.toLowerCase() as string) {
       case 'text': {
         let content = await (await readFile(index.file as string)).toString()
-        content = encodeURIComponent(content)
+        content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace('\'', '&apos;')
         const page = template.toString().replace('%FILE%', content)
         await response.writeHead(200, {
           'Content-Length': page.length,
