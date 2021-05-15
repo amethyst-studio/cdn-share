@@ -37,7 +37,7 @@ export class AuthMiddleware {
     })).content
 
     if (profile.password !== hash) {
-      await next(new UnauthorizedError('IdentityRejected: The request password may be incorrect, invalid, or throttled to prevent abuse.'))
+      await next(new UnauthorizedError('IdentityRejected: The request password may be incorrect, disabled, or throttled to prevent abuse.'))
     }
 
     return next()
@@ -50,7 +50,7 @@ export class AuthMiddleware {
 
     const profile = await AuthMiddleware.server.users.get(email)
     if (profile.token !== token) {
-      await next(new UnauthorizedError('IdentityRejected: The request token may be incorrect, invalid, or be permanently disabled to prevent abuse.'))
+      await next(new UnauthorizedError('IdentityRejected: The request token may be incorrect, throttled, or be permanently disabled to prevent abuse.'))
     }
 
     return next()
