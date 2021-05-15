@@ -4,14 +4,15 @@ import { copyFile, mkdir, stat } from 'fs/promises'
 import { DateTime, Duration } from 'luxon'
 import ms from 'ms'
 import { basename, extname, resolve } from 'path'
-import { Next, plugins, Request, Response } from 'restify'
+import type { Next, Request, Response } from 'restify'
+import { plugins } from 'restify'
 import { ConflictError, UnsupportedMediaTypeError } from 'restify-errors'
-import { CDNServer } from '../../../..'
+import type { CDNServer } from '../../../..'
 import { AuthMiddleware } from '../../middleware/auth.verify'
 import { GenericRoute } from '../../route'
 
 export class Route extends GenericRoute {
-  constructor (server: CDNServer) {
+  public constructor (server: CDNServer) {
     super(server)
 
     this.configure({
@@ -30,17 +31,19 @@ export class Route extends GenericRoute {
     })
   }
 
-  async handle (request: Request, response: Response, next: Next): Promise<void> {
+  public async handle (request: Request, response: Response, next: Next): Promise<void> {
     const { email, name, type, expire_after: expireAfter } = request.params
 
     const upload = request.files?.upload
 
-    if (upload === undefined || upload === null) {
-      return next(new UnsupportedMediaTypeError('You must specify the uploaded file using upload as the parameter or multi-part body request key.'))
+    if (upload === undefined) {
+      next(new UnsupportedMediaTypeError('You must specify the uploaded file using upload as the parameter or multi-part body request key.'))
+      return
     }
 
-    if (upload.name === undefined || upload.name === null) {
-      return next(new UnsupportedMediaTypeError('You must specify the uploaded file\'s name using name as the parameter or multi-part body request key.'))
+    if (upload.name === null) {
+      next(new UnsupportedMediaTypeError('You must specify the uploaded file\'s name using name as the parameter or multi-part body request key.'))
+      return
     }
 
     // Get Extension or ''
@@ -59,18 +62,19 @@ export class Route extends GenericRoute {
     if (name !== undefined) seed.content = basename(name, extname(name))
 
     const file = resolve(__dirname, `../../../../namespace${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}/${profile.namespace as string}/${seed.content}${extension}`)
-    let st = await stat(file).catch(() => { return null })
+    let diskStat = await stat(file).catch(() => { return null })
 
-    if (name !== undefined && st !== null) {
-      return next(new ConflictError(`ContentRejected: The requested name, '${name as string}', already exists on the server. Please delete this key first before attempting to reuse this name.`))
+    if (name !== undefined && diskStat !== null) {
+      next(new ConflictError(`ContentRejected: The requested name, '${name as string}', already exists on the server. Please delete this key first before attempting to reuse this name.`))
+      return
     }
 
-    while (st !== null) {
+    while (diskStat !== null) {
       seed = await hasher.digest({
         content: randomBytes(128).toString('base64'),
         digest: 'hex'
       })
-      st = await stat(resolve(__dirname, `../../../../namespace/${profile.namespace as string}/${seed.content}${extension}`)).catch(() => { return null })
+      diskStat = await stat(resolve(__dirname, `../../../../namespace/${profile.namespace as string}/${seed.content}${extension}`)).catch(() => { return null })
     }
 
     // Transfer Uploaded File to Persistent Disk
@@ -95,7 +99,7 @@ export class Route extends GenericRoute {
 
     // Respond to Client
     return response.json({
-      code: 'Created',
+      code: 'created',
       message: 'The file has been successfully uploaded. You can find and view it at the following link.',
       body: {
         'Content-ID': `${seed.content}${extension}`,

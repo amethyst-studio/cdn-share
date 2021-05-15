@@ -1,9 +1,10 @@
-import { plugins, Request, Response } from 'restify'
-import { CDNServer } from '../../../'
+import type { Request, Response } from 'restify'
+import { plugins } from 'restify'
+import type { CDNServer } from '../../../'
 import { GenericRoute } from '../route'
 
 export class Route extends GenericRoute {
-  constructor (server: CDNServer) {
+  public constructor (server: CDNServer) {
     super(server)
 
     this.configure({
@@ -20,7 +21,7 @@ export class Route extends GenericRoute {
     })
   }
 
-  async handle (request: Request, response: Response): Promise<void> {
+  public async handle (request: Request, response: Response): Promise<void> {
     return response.json({
       code: 200,
       message: 'OK'

@@ -2,7 +2,8 @@ import { createBandwidthThrottleGroup } from 'bandwidth-throttle-stream'
 import * as dotenv from 'dotenv'
 import { MySQLAdapter } from 'k-value'
 import morgan from 'morgan'
-import { createServer, plugins, Server } from 'restify'
+import type { Server } from 'restify'
+import { createServer, plugins } from 'restify'
 import type { Logger } from 'winston'
 import { createLogger, format, transports } from 'winston'
 import { runExpire } from './lib/helper/expire'
@@ -46,44 +47,16 @@ export class Logging {
 
 // DB Authentication Credentials
 const authentication = {
-  host: process.env.MYSQL_HOSTNAME as string,
+  host: process.env.MYSQL_HOSTNAME!,
   port: 3306,
-  username: process.env.MYSQL_USERNAME as string,
-  password: process.env.MYSQL_PASSWORD as string,
-  database: process.env.MYSQL_DATABASE as string
+  username: process.env.MYSQL_USERNAME!,
+  password: process.env.MYSQL_PASSWORD!,
+  database: process.env.MYSQL_DATABASE!
 }
 
 export class CDNServer {
-  // Restify Server
-  readonly server: Server = createServer({
-    name: 'cdn-portal',
-    version: '1'
-  })
-
-  // Initialize Users Index
-  readonly users = new MySQLAdapter({
-    authentication,
-    table: 'cdn.users',
-    encoder: {
-      use: true,
-      store: 'base64',
-      parse: 'utf-8'
-    }
-  })
-
-  // Initialize Namespace Meta Index
-  readonly namespaces = new MySQLAdapter({
-    authentication,
-    table: 'cdn.namespaces',
-    encoder: {
-      use: true,
-      store: 'base64',
-      parse: 'utf-8'
-    }
-  })
-
   // Initialize File Meta Index
-  readonly index = new MySQLAdapter({
+  public readonly index = new MySQLAdapter({
     authentication,
     table: `cdn.index${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}`,
     encoder: {
@@ -93,12 +66,51 @@ export class CDNServer {
     }
   })
 
+  // Initialize Namespace Meta Index
+  public readonly namespaces = new MySQLAdapter({
+    authentication,
+    table: 'cdn.namespaces',
+    encoder: {
+      use: true,
+      store: 'base64',
+      parse: 'utf-8'
+    }
+  })
+
   // Bandwidth Throttler
-  readonly responseThrottler = createBandwidthThrottleGroup({
+  public readonly responseThrottler = createBandwidthThrottleGroup({
     bytesPerSecond: 104857600
   })
 
-  async setup (): Promise<void> {
+  // Restify Server
+  public readonly server: Server = createServer({
+    name: 'cdn-portal',
+    version: '1'
+  })
+
+  // Initialize Users Index
+  public readonly users = new MySQLAdapter({
+    authentication,
+    table: 'cdn.users',
+    encoder: {
+      use: true,
+      store: 'base64',
+      parse: 'utf-8'
+    }
+  })
+
+  // Listen on Restify Server w/ Notification
+  public async listen (port: number): Promise<void> {
+    this.server.listen(port, process.env.BIND_ADDRESS!)
+    Logging.GetLogger().info(`Listening for requests on ${process.env.BIND_ADDRESS!}:${port}`)
+  }
+
+  // Initialize Routes
+  public async routes (): Promise<void> {
+    await RouteLoader.execute(this)
+  }
+
+  public async setup (): Promise<void> {
     // Configure key-value Database
     await this.users.configure()
     await this.namespaces.configure()
@@ -129,17 +141,6 @@ export class CDNServer {
         'https://your-domain.tld/v1/users/register?email=you@domain.tld&password=setYourPasswordHere'
       )
     }
-  }
-
-  // Initialize Routes
-  async routes (): Promise<void> {
-    await RouteLoader.execute(this)
-  }
-
-  // Listen on Restify Server w/ Notification
-  async listen (port: number): Promise<void> {
-    this.server.listen(port, process.env.BIND_ADDRESS as string)
-    Logging.GetLogger().info(`Listening for requests on ${process.env.BIND_ADDRESS as string}:${port}`)
   }
 }
 

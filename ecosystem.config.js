@@ -11,8 +11,8 @@ const production = {
   env: {
     NODE_ENV: 'production',
     PRODUCTION_MODE: true,
-    BIND_ADDRESS: process.env.BIND_ADDRESS || '0.0.0.0',
-    PORTAL_PORT: process.env.BIND_PORT || 3000
+    BIND_ADDRESS: process.env.BIND_ADDRESS ?? '0.0.0.0',
+    PORTAL_PORT: process.env.BIND_PORT ?? 3000
   },
   exec_mode: 'cluster',
   instances: 4

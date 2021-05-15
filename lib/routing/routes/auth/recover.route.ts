@@ -1,10 +1,11 @@
-import { Next, plugins, Request, Response } from 'restify'
-import { CDNServer } from '../../../../index'
+import type { Next, Request, Response } from 'restify'
+import { plugins } from 'restify'
+import type { CDNServer } from '../../../../index'
 import { AuthMiddleware } from '../../middleware/auth.verify'
 import { GenericRoute } from '../../route'
 
 export class Route extends GenericRoute {
-  constructor (server: CDNServer) {
+  public constructor (server: CDNServer) {
     super(server)
 
     this.configure({
@@ -23,7 +24,7 @@ export class Route extends GenericRoute {
     })
   }
 
-  async handle (request: Request, response: Response, next: Next): Promise<void> {
+  public async handle (request: Request, response: Response, next: Next): Promise<void> {
     const { email } = request.params
 
     // Get Profile from Database
@@ -31,7 +32,7 @@ export class Route extends GenericRoute {
 
     // Respond to Client
     return response.json({
-      code: 'OK',
+      code: 'recover',
       message: 'Your token has been successfully recovered, please try not to lose it next time.',
       body: {
         'Authorization-Token': profile.token

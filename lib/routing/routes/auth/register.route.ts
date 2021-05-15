@@ -1,12 +1,13 @@
 import { randomBytes } from 'crypto'
 import { getHasher } from 'cryptocipher'
-import { Next, plugins, Request, Response } from 'restify'
+import type { Next, Request, Response } from 'restify'
+import { plugins } from 'restify'
 import { BadRequestError, ConflictError } from 'restify-errors'
-import { CDNServer } from '../../../../index'
+import type { CDNServer } from '../../../../index'
 import { GenericRoute } from '../../route'
 
 export class Route extends GenericRoute {
-  constructor (server: CDNServer) {
+  public constructor (server: CDNServer) {
     super(server)
 
     this.configure({
@@ -23,26 +24,29 @@ export class Route extends GenericRoute {
     })
   }
 
-  async handle (request: Request, response: Response, next: Next): Promise<void> {
+  public async handle (request: Request, response: Response, next: Next): Promise<void> {
     const { email, password, namespace } = request.params
 
     if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email)) {
-      return next(new BadRequestError('IdentityRejected: Please provide a valid email address for registration.'))
+      next(new BadRequestError('IdentityRejected: Please provide a valid email address for registration.'))
+      return
     }
 
     if (await this.server.users.has(email)) {
-      return next(new ConflictError('IdentityRejected: The requested email may already exist, require verification, or be permanently disabled.'))
+      next(new ConflictError('IdentityRejected: The requested email may already exist, require verification, or be permanently disabled.'))
+      return
     }
 
     if (namespace !== undefined && await this.server.namespaces.has(namespace)) {
-      return next(new ConflictError('IdentityRejected: The requested namespace may already exist, require verification, or be permanently disabled.'))
+      next(new ConflictError('IdentityRejected: The requested namespace may already exist, require verification, or be permanently disabled.'))
+      return
     }
 
     // Generate API Token
     const hasher = getHasher('sha512')
     const seedForRandom = randomBytes(96)
     randomBytes(96).copy(seedForRandom, Math.floor(Math.random() * 64), Math.floor(Math.random() * 64))
-    const seed = await hasher.digest({
+    const hashed = await hasher.digest({
       content: seedForRandom.toString('base64') + Date.now().toLocaleString(),
       digest: 'hex',
       iter: 25
@@ -67,17 +71,17 @@ export class Route extends GenericRoute {
         digest: 'hex',
         iter: 20000
       })).content,
-      token: seed.content,
+      token: hashed.content,
       namespace: (namespace !== undefined ? namespace : generatedNamespace),
       role: ((await this.server.users.keys()).length === 0 ? 'ADMIN' : 'USER')
     })
 
     // Respond to Client
     return response.json({
-      code: 'OK',
+      code: 'register',
       message: 'Registration has been completed. The following access token will be used for accessing the API. Should this token become compromised or lost, you can reset or recover this token at the following endpoints.',
       body: {
-        'Authorization-Token': seed.content,
+        'Authorization-Token': hashed.content,
         'Namespace-ID': (namespace !== undefined ? namespace : generatedNamespace),
         'Lost-Token': `/v1/auth/-/token/lost?email=${email as string}&password=yourPassword`,
         'Reset-Token': `/v1/auth/-/token/reset?email=${email as string}&password=yourPassword&token=currentToken`

@@ -2,15 +2,16 @@ import { createReadStream, readFileSync } from 'fs'
 import { readFile, stat } from 'fs/promises'
 import { lookup } from 'mime-types'
 import { extname, resolve } from 'path'
-import { Next, plugins, Request, Response } from 'restify'
+import type { Next, Request, Response } from 'restify'
+import { plugins } from 'restify'
 import { NotFoundError } from 'restify-errors'
-import { CDNServer } from '../../../../'
+import type { CDNServer } from '../../../../'
 import { GenericRoute } from '../../route'
 
 const template = readFileSync(resolve(__dirname, '../../../render/highlighter.html'))
 
 export class Route extends GenericRoute {
-  constructor (server: CDNServer) {
+  public constructor (server: CDNServer) {
     super(server)
 
     this.configure({
@@ -27,27 +28,27 @@ export class Route extends GenericRoute {
     })
   }
 
-  async handle (request: Request, response: Response, next: Next): Promise<void> {
+  public async handle (request: Request, response: Response, next: Next): Promise<void> {
     const { namespace_id: namespaceId, content_id: contentId } = request.params
 
     if (namespaceId === undefined || !await this.server.namespaces.has(namespaceId)) {
-      return next(new NotFoundError('The requested content was not found on the server.'))
+      next(new NotFoundError('The requested content was not found on the server.')); return
     }
 
     if (contentId === undefined || !await this.server.namespaces.has(namespaceId)) {
-      return next(new NotFoundError('The requested content was not found on the server.'))
+      next(new NotFoundError('The requested content was not found on the server.')); return
     }
 
     // Get Index
     const index = await this.server.index.get(`${namespaceId as string}/${contentId as string}`)
     if (index === undefined) {
-      return next(new NotFoundError('The requested content was not found on the server.'))
+      next(new NotFoundError('The requested content was not found on the server.')); return
     }
 
     // Stat Disk for Existence
-    const st = await stat(index.file as string).catch(() => { return null })
-    if (st === null) {
-      return next(new NotFoundError('The requested content was not found on the server.'))
+    const diskStat = await stat(index.file as string).catch(() => { return null })
+    if (diskStat === null) {
+      next(new NotFoundError('The requested content was not found on the server.')); return
     }
 
     switch (index.type?.toLowerCase() as string) {
@@ -61,7 +62,8 @@ export class Route extends GenericRoute {
           'Content-Type': 'text/html'
         })
         await response.write(page)
-        return await response.end()
+        response.end()
+        return
       }
       case 'image': {
         const type = lookup(extname(index.upload.name))
@@ -70,7 +72,8 @@ export class Route extends GenericRoute {
           'Content-Type': type as string
         })
         await response.write(await readFile(index.file as string))
-        return await response.end()
+        response.end()
+        return
       }
       case 'binary':
       default: {
@@ -78,18 +81,18 @@ export class Route extends GenericRoute {
         const stream = createReadStream(index.file as string)
         await response.writeHead(200, {
           'Content-Length': index.upload.size,
-          'Content-Type': (type === undefined || index.type?.toLowerCase() === 'binary' ? 'application/octet-stream' : type as string)
+          'Content-Type': (type === '' || index.type?.toLowerCase() === 'binary' ? 'application/octet-stream' : type as string)
         })
         const throttle = this.server.responseThrottler.createBandwidthThrottle(index.upload.size)
         request.once('aborted', () => {
-          return throttle.abort()
+          throttle.abort()
         })
         await stream.pipe(throttle)
           .on('data', (chunk) => {
             return response.write(chunk)
           })
           .on('end', () => {
-            return response.end()
+            response.end()
           })
       }
     }
