@@ -53,6 +53,7 @@ export class Route extends GenericRoute {
     switch (index.type?.toLowerCase() as string) {
       case 'text': {
         let content = await (await readFile(index.file as string)).toString()
+        // Sterilize Control XML Characters... Because HTML is a PITA
         content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace('\'', '&apos;')
         const page = template.toString().replace('%FILE%', content)
         await response.writeHead(200, {
