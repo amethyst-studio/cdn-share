@@ -89,7 +89,7 @@ export class Route extends GenericRoute {
         })
         await stream.pipe(throttle)
           .on('data', (chunk) => {
-            return response.write(chunk)
+            response.write(chunk)
           })
           .on('end', () => {
             response.end()
