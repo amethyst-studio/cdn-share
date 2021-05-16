@@ -1,6 +1,6 @@
 {
-  "name": "static-content-network",
-  "description": "Amethyst Simple Content Distribution Server",
+  "name": "static-content-server",
+  "description": "Simple Content Distribution Server for Personal/Private Applications (Commercial is allowed, but you my find security lacking in certain aspects.)",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Samuel J Voeller <samuel.voeller@amethyst.live> (https://chat.amethyst.live/)",
@@ -11,7 +11,8 @@
   },
   "engines": {
     "node": ">=10.0.0",
-    "npm": ">6.14.0"
+    "npm": ">7.11.0",
+    "yarn": "use-npm"
   },
   "engineStrict": true,
   "scripts": {
