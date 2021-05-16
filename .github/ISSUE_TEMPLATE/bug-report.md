@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report an issue with static-content-network
+about: Report an issue with the project.
 title: '[BUG] Generalized Overview of the Report Here'
 labels: 'Type: Bug, State: Conversation, Status: Unassigned'
 assignees: ''
