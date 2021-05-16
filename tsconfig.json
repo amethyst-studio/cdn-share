@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "module": "CommonJS",
+    "target": "ES5",
     "moduleResolution": "node",
+    "isolatedModules": true,
+    "outDir": "./dist/",
     "types": [
       "node"
     ],
@@ -11,10 +13,8 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "downlevelIteration": false,
     "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true
+    "esModuleInterop": true
   },
   "include": [
     "./**/*.ts",

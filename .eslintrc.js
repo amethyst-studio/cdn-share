@@ -22,7 +22,8 @@ module.exports = {
   ignorePatterns: [
     '/dist/',
     '/docs/',
-    'ecosystem.config.js'
+    'ecosystem.config.js',
+    'webpack.config.js'
   ],
   rules: {
     'tsdoc/syntax': 'warn',

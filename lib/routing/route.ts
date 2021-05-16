@@ -1,15 +1,20 @@
-import { walk } from 'amethyst-hv/dist/lib/util/fs/walk'
-import type { File } from 'amethyst-hv/dist/lib/util/fs/walk/types/walk.t'
-import { resolve } from 'path'
 import type { Next, Request, Response } from 'restify'
 import type { CDNServer } from '../../index'
 import { Logging } from '../../index'
 import type { RouteOptions } from '../types/generic.t'
+import { Route as RecoverRoute } from './routes/auth/recover.route'
+import { Route as RegisterRoute } from './routes/auth/register.route'
+import { Route as ResetRoute } from './routes/auth/reset.route'
+import { Route as DeleteRoute } from './routes/file/delete.route'
+import { Route as UploadRoute } from './routes/file/upload.route'
+import { Route as HealthCheckRoute } from './routes/health-check.route'
+import { Route as RawViewerRoute } from './routes/viewer/raw-viewer.route'
+import { Route as ViewerRoute } from './routes/viewer/viewer.route'
 
 /**
  * Generic Route Indexing for Building a HTTP API Route
  */
-export abstract class GenericRoute {
+export class GenericRoute {
   public options: RouteOptions
   public readonly server: CDNServer
 
@@ -28,7 +33,9 @@ export abstract class GenericRoute {
   }
 
   /** Abstracted Handler for Route */
-  abstract handle (request: Request, response: Response, next?: Next): Promise<void>
+  public async handle (request: Request, response: Response, next?: Next): Promise<void> {
+    /** */
+  }
 }
 
 // Request Hack for Dynamic Loading... JustWorks:tm:
@@ -40,21 +47,27 @@ interface RouteLoadable {
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class RouteLoader {
   public static async execute (cdn: CDNServer): Promise<void> {
-    for (const file of await this.search()) {
-      const { Route } = await import(file.exact)
-      const route = new Route(cdn)
+    const routes: GenericRoute[] = []
 
+    routes.push(new RecoverRoute(cdn))
+    routes.push(new RegisterRoute(cdn))
+    routes.push(new ResetRoute(cdn))
+    routes.push(new DeleteRoute(cdn))
+    routes.push(new UploadRoute(cdn))
+    routes.push(new RawViewerRoute(cdn))
+    routes.push(new ViewerRoute(cdn))
+    routes.push(new HealthCheckRoute(cdn))
+
+    for (const route of routes) {
       // Route Handler Dynamic Builder
       const server = cdn.server as unknown as RouteLoadable
-      server[route.options.allow](route.options.path, ...route.options.middleware, (request: Request, response: Response, next: Next) => {
-        route.handle(request, response, next).catch((err: Error) => Logging.GetLogger().error(err))
-      })
+      this.register(server, route)
     }
   }
 
-  public static async search (): Promise<File[]> {
-    return (await walk(resolve(__dirname, './routes'), (file) => { return file.includes('.ts') }, {
-      recursive: true
-    })).files
+  public static register (server: RouteLoadable, route: GenericRoute): void {
+    server[route.options.allow](route.options.path, ...route.options.middleware as ServerRequest[], (request: Request, response: Response, next: Next) => {
+      route.handle(request, response, next).catch((err: Error) => Logging.GetLogger().error(err))
+    })
   }
 }
