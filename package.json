@@ -58,7 +58,7 @@
     "mysql2": "^2.2.5",
     "restify": "^8.5.1",
     "restify-errors": "^8.0.2",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.0.0",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4",
     "winston": "^3.3.3"
