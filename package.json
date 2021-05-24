@@ -49,7 +49,7 @@
     "@types/restify-errors": "^4.3.3",
     "bandwidth-throttle-stream": "^1.1.1",
     "cryptocipher": "^3.0.6",
-    "dotenv": "^9.0.2",
+    "dotenv": "^10.0.0",
     "k-value": "^1.2.4",
     "luxon": "^1.27.0",
     "mime-types": "^2.1.30",
