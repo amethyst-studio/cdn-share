@@ -29,7 +29,7 @@ export class Route extends GenericRouting {
   }
 
   public async handle (request: Request, response: Response, next: Next): Promise<void> {
-    const { namespace_id: namespaceId, content_id: contentId } = request.params as { namespaceId: string; contentId: string; }
+    const { namespace_id: namespaceId, content_id: contentId } = request.params as { namespace_id: string | undefined; content_id: string | undefined; }
 
     if (namespaceId === undefined || !await this.server.namespaces.has(namespaceId)) {
       next(new NotFoundError('The requested content was not found on the server.')); return
@@ -40,7 +40,7 @@ export class Route extends GenericRouting {
     }
 
     // Get Index
-    const index = await this.server.index.get(`${namespaceId as string}/${contentId as string}`) as undefined | { file: string; type: string | undefined; upload: { name: string; size: number; }; }
+    const index = await this.server.index.get(`${namespaceId}/${contentId}`) as undefined | { file: string; type: string | undefined; upload: { name: string; size: number; }; }
     if (index === undefined) {
       next(new NotFoundError('The requested content was not found on the server.')); return
     }

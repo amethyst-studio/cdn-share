@@ -25,7 +25,7 @@ export class Route extends GenericRouting {
   }
 
   public async handle (request: Request, response: Response, next: Next): Promise<void> {
-    const { email, password, namespace } = request.params as { email: string | undefined; password: string | undefined; namespace: string | undefined; }
+    const { email, password, namespace } = request.params as { email: string; password: string; namespace: string | undefined; }
 
     if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email)) {
       next(new BadRequestError('IdentityRejected: Please provide a valid email address for registration.'))
@@ -83,8 +83,8 @@ export class Route extends GenericRouting {
       body: {
         'Authorization-Token': hashed.content,
         'Namespace-ID': (namespace !== undefined ? namespace : generatedNamespace),
-        'Lost-Token': `/v1/auth/-/token/lost?email=${email!}&password=yourPassword`,
-        'Reset-Token': `/v1/auth/-/token/reset?email=${email!}&password=yourPassword&token=currentToken`
+        'Lost-Token': `/v1/auth/-/token/lost?email=${email}&password=yourPassword`,
+        'Reset-Token': `/v1/auth/-/token/reset?email=${email}&password=yourPassword&token=currentToken`
       }
     })
   }

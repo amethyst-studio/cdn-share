@@ -21,7 +21,8 @@ export class Route extends GenericRouting {
     })
   }
 
-  public handle (request: Request, response: Response): void {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async handle (request: Request, response: Response): Promise<void> {
     response.json({
       code: 200,
       message: 'OK'

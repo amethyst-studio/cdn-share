@@ -30,7 +30,7 @@ export class AuthMiddleware {
       return
     }
 
-    const profile = await AuthMiddleware.server.users.get(email) as { password: string; token: string; }
+    const profile = await AuthMiddleware.server.users.get(email!) as { password: string; token: string; }
 
     const hasher = getHasher('sha512')
     const hash = (await hasher.digest({
@@ -55,7 +55,7 @@ export class AuthMiddleware {
       return
     }
 
-    const profile = await AuthMiddleware.server.users.get(email) as { token: string; }
+    const profile = await AuthMiddleware.server.users.get(email!) as { token: string | undefined; }
     if (profile.token !== token) {
       next(new UnauthorizedError('IdentityRejected: The request token may be incorrect, throttled, or be permanently disabled to prevent abuse.'))
       return
