@@ -5,10 +5,10 @@ import { Logging } from '../..'
 export async function runIndexPurge (indexTable: MySQLAdapter): Promise<void> {
   const keys = await indexTable.keys()
   for (const key of keys) {
-    const index = await indexTable.get(key)
+    const index = await indexTable.get(key) as { file: string; }
 
     if (await stat(index.file).catch(() => { return null }) === null) {
-      Logging.GetLogger().warn(`MISSING_FILE (${key}) ${index.file as string}`)
+      Logging.GetLogger().warn(`MISSING_FILE (${key}) ${index.file}`)
       await indexTable.delete(key)
     }
   }

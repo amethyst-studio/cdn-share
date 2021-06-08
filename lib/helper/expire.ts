@@ -6,7 +6,7 @@ import { Logging } from '../..'
 export async function runExpire (indexTable: MySQLAdapter): Promise<void> {
   const keys = await indexTable.keys()
   for (const key of keys) {
-    const index = await indexTable.get(key)
+    const index = await indexTable.get(key) as { expire: string | null; }
     if (index.expire === null) continue
     const expires = DateTime.fromISO(index.expire)
     const diff = expires.diff(DateTime.local().toUTC(), ['millisecond'])

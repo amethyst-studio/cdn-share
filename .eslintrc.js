@@ -6,27 +6,26 @@ module.exports = {
     ecmaFeatures: {
       impliedStrict: true
     },
-    project: './tsconfig.json'
+    tsconfigRootDir: __dirname,
+    project: [ './tsconfig.json' ]
   },
   plugins: [
-    '@typescript-eslint',
-    'eslint-plugin-tsdoc',
-    'typescript-sort-keys'
+    '@typescript-eslint'
   ],
   extends: [
     'eslint:recommended',
     'standard-with-typescript',
     'plugin:@typescript-eslint/recommended',
-    'plugin:typescript-sort-keys/recommended'
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
   ],
   ignorePatterns: [
     '/dist/',
     '/docs/',
-    'ecosystem.config.js',
-    'webpack.config.js'
+    '/**/*.js',
+    '/*/*.js',
+    '/*.js'
   ],
   rules: {
-    'tsdoc/syntax': 'warn',
     '@typescript-eslint/array-type': 'error',
     '@typescript-eslint/ban-tslint-comment': 'error',
     '@typescript-eslint/class-literal-property-style': ['error', 'fields'],
@@ -69,6 +68,11 @@ module.exports = {
     '@typescript-eslint/switch-exhaustiveness-check': 'warn',
     '@typescript-eslint/type-annotation-spacing': 'warn',
     '@typescript-eslint/typedef': 'warn',
-    '@typescript-eslint/unified-signatures': 'warn'
+    '@typescript-eslint/unified-signatures': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-use-before-define': 'warn',
+    '@typescript-eslint/no-unused-vars': 'warn',
+    "no-return-await": "off",
+    '@typescript-eslint/return-await': ['error', 'always']
   }
 }

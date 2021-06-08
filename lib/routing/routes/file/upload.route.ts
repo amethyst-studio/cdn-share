@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { randomBytes } from 'crypto'
 import { getHasher } from 'cryptocipher'
 import { copyFile, mkdir, stat } from 'fs/promises'
@@ -9,9 +10,9 @@ import { plugins } from 'restify'
 import { ConflictError, UnsupportedMediaTypeError } from 'restify-errors'
 import type { CDNServer } from '../../../..'
 import { AuthMiddleware } from '../../middleware/auth.verify'
-import { GenericRoute } from '../../route'
+import { GenericRouting } from '../../route'
 
-export class Route extends GenericRoute {
+export class Route extends GenericRouting {
   public constructor (server: CDNServer) {
     super(server)
 
@@ -32,7 +33,7 @@ export class Route extends GenericRoute {
   }
 
   public async handle (request: Request, response: Response, next: Next): Promise<void> {
-    const { email, name, type, expire_after: expireAfter } = request.params
+    const { email, name, type, expire_after: expireAfter } = request.params as { email: string; name: string | undefined; type: string; expire_after: string | undefined; }
 
     const upload = request.files?.upload
 
@@ -50,8 +51,8 @@ export class Route extends GenericRoute {
     const extension = extname(upload.name)
 
     // Generate Namespace Directory
-    const profile = await this.server.users.get(email)
-    await mkdir(resolve(__dirname, `../../../../namespace${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}/${profile.namespace as string}`), { recursive: true })
+    const profile = await this.server.users.get(email) as { namespace: string; }
+    await mkdir(resolve(__dirname, `../../../../namespace${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}/${profile.namespace}`), { recursive: true })
 
     // Generate Object Hash
     const hasher = getHasher('sha1')
@@ -61,11 +62,11 @@ export class Route extends GenericRoute {
     })
     if (name !== undefined) seed.content = basename(name, extname(name))
 
-    const file = resolve(__dirname, `../../../../namespace${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}/${profile.namespace as string}/${seed.content}${extension}`)
+    const file = resolve(__dirname, `../../../../namespace${process.env.PRODUCTION_MODE === 'true' ? '' : '.devel'}/${profile.namespace}/${seed.content}${extension}`)
     let diskStat = await stat(file).catch(() => { return null })
 
     if (name !== undefined && diskStat !== null) {
-      next(new ConflictError(`ContentRejected: The requested name, '${name as string}', already exists on the server. Please delete this key first before attempting to reuse this name.`))
+      next(new ConflictError(`ContentRejected: The requested name, '${name}', already exists on the server. Please delete this key first before attempting to reuse this name.`))
       return
     }
 
@@ -74,7 +75,7 @@ export class Route extends GenericRoute {
         content: randomBytes(128).toString('base64'),
         digest: 'hex'
       })
-      diskStat = await stat(resolve(__dirname, `../../../../namespace/${profile.namespace as string}/${seed.content}${extension}`)).catch(() => { return null })
+      diskStat = await stat(resolve(__dirname, `../../../../namespace/${profile.namespace}/${seed.content}${extension}`)).catch(() => { return null })
     }
 
     // Transfer Uploaded File to Persistent Disk
@@ -83,12 +84,12 @@ export class Route extends GenericRoute {
     // Set Expire
     let expire
     if (expireAfter !== undefined) {
-      const milliseconds = ms(expireAfter as string)
+      const milliseconds = ms(expireAfter)
       expire = milliseconds > 0 ? DateTime.local().toUTC().plus(Duration.fromObject({ milliseconds: milliseconds })).toUTC().toISO() : null
     }
 
     // Write Index to Database
-    await this.server.index.set(`${profile.namespace as string}/${seed.content}${extension}`, {
+    await this.server.index.set(`${profile.namespace}/${seed.content}${extension}`, {
       email,
       file,
       name,
@@ -98,13 +99,13 @@ export class Route extends GenericRoute {
     })
 
     // Respond to Client
-    return response.json({
+    response.json({
       code: 'created',
       message: 'The file has been successfully uploaded. You can find and view it at the following link.',
       body: {
         'Content-ID': `${seed.content}${extension}`,
         'Namespace-ID': profile.namespace,
-        Location: `/-/${profile.namespace as string}/${seed.content}${extension}`
+        Location: `/-/${profile.namespace}/${seed.content}${extension}`
       }
     })
   }

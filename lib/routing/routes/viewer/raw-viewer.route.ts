@@ -6,9 +6,9 @@ import type { Next, Request, Response } from 'restify'
 import { plugins } from 'restify'
 import { NotFoundError } from 'restify-errors'
 import type { CDNServer } from '../../../..'
-import { GenericRoute } from '../../route'
+import { GenericRouting } from '../../route'
 
-export class Route extends GenericRoute {
+export class Route extends GenericRouting {
   public constructor (server: CDNServer) {
     super(server)
 
@@ -27,7 +27,7 @@ export class Route extends GenericRoute {
   }
 
   public async handle (request: Request, response: Response, next: Next): Promise<void> {
-    const { namespace_id: namespaceId, content_id: contentId } = request.params
+    const { namespace_id: namespaceId, content_id: contentId } = request.params as { namespaceId: string; contentId: string; }
 
     if (namespaceId === undefined || !await this.server.namespaces.has(namespaceId)) {
       next(new NotFoundError('The requested content was not found on the server.'))
@@ -40,22 +40,22 @@ export class Route extends GenericRoute {
     }
 
     // Get Index
-    const index = await this.server.index.get(`${namespaceId as string}/${contentId as string}`)
+    const index = await this.server.index.get(`${namespaceId as string}/${contentId as string}`) as undefined | { file: string; type: string | undefined; upload: { name: string; size: number; }; }
     if (index === undefined) {
       next(new NotFoundError('The requested content was not found on the server.'))
       return
     }
 
     // Stat Disk for Existence
-    const diskStat = await stat(index.file as string).catch(() => { return null })
+    const diskStat = await stat(index.file).catch(() => { return null })
     if (diskStat === null) {
       next(new NotFoundError('The requested content was not found on the server.'))
       return
     }
 
     const type = lookup(extname(index.upload.name))
-    const stream = createReadStream(index.file as string)
-    await response.writeHead(200, {
+    const stream = createReadStream(index.file)
+    response.writeHead(200, {
       'Content-Length': index.upload.size,
       'Content-Type': (type === '' || index.type?.toLowerCase() === 'binary' ? 'application/octet-stream' : type as string)
     })
@@ -63,7 +63,7 @@ export class Route extends GenericRoute {
     request.once('aborted', () => {
       throttle.abort()
     })
-    await stream.pipe(throttle)
+    stream.pipe(throttle)
       .on('data', (chunk) => {
         response.write(chunk)
       })

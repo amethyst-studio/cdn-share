@@ -15,7 +15,7 @@ const production = {
     PORTAL_PORT: process.env.BIND_PORT ?? 3000
   },
   exec_mode: 'cluster',
-  instances: 4
+  instances: 2
 }
 
 // Development Version of SC-CDN. You can safely ignore everything here.

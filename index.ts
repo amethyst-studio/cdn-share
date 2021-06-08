@@ -100,7 +100,7 @@ export class CDNServer {
   })
 
   // Listen on Restify Server w/ Notification
-  public async listen (port: number): Promise<void> {
+  public listen (port: number): void {
     this.server.listen(port, process.env.BIND_ADDRESS!)
     Logging.GetLogger().info(`Listening for requests on ${process.env.BIND_ADDRESS!}:${port}`)
   }
@@ -150,31 +150,31 @@ async function main (): Promise<void> {
 
   await srv.setup()
   await srv.routes()
-  await srv.listen(process.env.PORTAL_PORT as unknown as number)
+  srv.listen(process.env.PORTAL_PORT as unknown as number)
 
   // Register Periodic Tasks
   // Task: Expire
   setInterval((): void => {
-    runExpire(srv.index).catch((error) => {
+    runExpire(srv.index).catch((err: Error) => {
       Logging.GetLogger().error('Expiring Content Failed')
-      Logging.GetLogger().error(error.stack)
+      Logging.GetLogger().error(err.stack)
     })
   }, 15000)
-  runExpire(srv.index).catch((error) => {
+  runExpire(srv.index).catch((err: Error) => {
     Logging.GetLogger().error('Expiring Content Failed')
-    Logging.GetLogger().error(error.stack)
+    Logging.GetLogger().error(err.stack)
   })
 
   // Task: Index Cleaning
   setInterval((): void => {
-    runIndexPurge(srv.index).catch((error) => {
+    runIndexPurge(srv.index).catch((err: Error) => {
       Logging.GetLogger().error('Purging Content Failed')
-      Logging.GetLogger().error(error.stack)
+      Logging.GetLogger().error(err.stack)
     })
   }, 3600000)
-  runIndexPurge(srv.index).catch((error) => {
+  runIndexPurge(srv.index).catch((err: Error) => {
     Logging.GetLogger().error('Purging Content Failed')
-    Logging.GetLogger().error(error.stack)
+    Logging.GetLogger().error(err.stack)
   })
 }
 
@@ -182,9 +182,9 @@ main().then(() => {
   // Post Ready to Service
   Logging.GetLogger().info('Initialization Finishes... NO_OP @ [0]')
   if (process.send !== undefined) process.send('ready')
-}).catch((error) => {
+}).catch((err: Error) => {
   // Post Error to Service when Uncaught Encountered
   Logging.GetLogger().error('Initialization Failure... TERMINATE @ [-127]')
-  Logging.GetLogger().error(error.stack)
+  Logging.GetLogger().error(err.stack)
   return process.exit(-127)
 })

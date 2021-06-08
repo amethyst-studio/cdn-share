@@ -1,20 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { Next, Request, Response } from 'restify'
 import type { CDNServer } from '../../index'
 import { Logging } from '../../index'
 import type { RouteOptions } from '../types/generic.t'
-import { Route as RecoverRoute } from './routes/auth/recover.route'
-import { Route as RegisterRoute } from './routes/auth/register.route'
-import { Route as ResetRoute } from './routes/auth/reset.route'
-import { Route as DeleteRoute } from './routes/file/delete.route'
-import { Route as UploadRoute } from './routes/file/upload.route'
-import { Route as HealthCheckRoute } from './routes/health-check.route'
-import { Route as RawViewerRoute } from './routes/viewer/raw-viewer.route'
-import { Route as ViewerRoute } from './routes/viewer/viewer.route'
 
 /**
  * Generic Route Indexing for Building a HTTP API Route
  */
-export class GenericRoute {
+export abstract class GenericRouting {
   public options: RouteOptions
   public readonly server: CDNServer
 
@@ -33,9 +26,7 @@ export class GenericRoute {
   }
 
   /** Abstracted Handler for Route */
-  public async handle (request: Request, response: Response, next?: Next): Promise<void> {
-    /** */
-  }
+  public abstract handle (request: Request, response: Response, next?: Next): Promise<void>
 }
 
 // Request Hack for Dynamic Loading... JustWorks:tm:
@@ -47,7 +38,21 @@ interface RouteLoadable {
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class RouteLoader {
   public static async execute (cdn: CDNServer): Promise<void> {
-    const routes: GenericRoute[] = []
+    const routes: GenericRouting[] = []
+
+    // import { Route as DeleteRoute } from './routes/file/delete.route'
+    // import { Route as UploadRoute } from './routes/file/upload.route'
+    // import { Route as RawViewerRoute } from './routes/viewer/raw-viewer.route'
+    // import { Route as ViewerRoute } from './routes/viewer/viewer.route'
+
+    const { Route: RecoverRoute } = await import('./routes/auth/recover.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const { Route: RegisterRoute } = await import('./routes/auth/register.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const { Route: ResetRoute } = await import('./routes/auth/reset.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const { Route: DeleteRoute } = await import('./routes/file/delete.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const { Route: UploadRoute } = await import('./routes/file/upload.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const { Route: RawViewerRoute } = await import('./routes/viewer/raw-viewer.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const { Route: ViewerRoute } = await import('./routes/viewer/viewer.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const { Route: HealthCheckRoute } = await import('./routes/health-check.route') // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 
     routes.push(new RecoverRoute(cdn))
     routes.push(new RegisterRoute(cdn))
@@ -65,7 +70,7 @@ export class RouteLoader {
     }
   }
 
-  public static register (server: RouteLoadable, route: GenericRoute): void {
+  public static register (server: RouteLoadable, route: GenericRouting): void {
     server[route.options.allow](route.options.path, ...route.options.middleware as ServerRequest[], (request: Request, response: Response, next: Next) => {
       route.handle(request, response, next).catch((err: Error) => Logging.GetLogger().error(err))
     })

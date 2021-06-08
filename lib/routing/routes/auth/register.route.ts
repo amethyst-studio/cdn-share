@@ -4,9 +4,9 @@ import type { Next, Request, Response } from 'restify'
 import { plugins } from 'restify'
 import { BadRequestError, ConflictError } from 'restify-errors'
 import type { CDNServer } from '../../../../index'
-import { GenericRoute } from '../../route'
+import { GenericRouting } from '../../route'
 
-export class Route extends GenericRoute {
+export class Route extends GenericRouting {
   public constructor (server: CDNServer) {
     super(server)
 
@@ -25,7 +25,7 @@ export class Route extends GenericRoute {
   }
 
   public async handle (request: Request, response: Response, next: Next): Promise<void> {
-    const { email, password, namespace } = request.params
+    const { email, password, namespace } = request.params as { email: string | undefined; password: string | undefined; namespace: string | undefined; }
 
     if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email)) {
       next(new BadRequestError('IdentityRejected: Please provide a valid email address for registration.'))
@@ -77,14 +77,14 @@ export class Route extends GenericRoute {
     })
 
     // Respond to Client
-    return response.json({
+    response.json({
       code: 'register',
       message: 'Registration has been completed. The following access token will be used for accessing the API. Should this token become compromised or lost, you can reset or recover this token at the following endpoints.',
       body: {
         'Authorization-Token': hashed.content,
         'Namespace-ID': (namespace !== undefined ? namespace : generatedNamespace),
-        'Lost-Token': `/v1/auth/-/token/lost?email=${email as string}&password=yourPassword`,
-        'Reset-Token': `/v1/auth/-/token/reset?email=${email as string}&password=yourPassword&token=currentToken`
+        'Lost-Token': `/v1/auth/-/token/lost?email=${email!}&password=yourPassword`,
+        'Reset-Token': `/v1/auth/-/token/reset?email=${email!}&password=yourPassword&token=currentToken`
       }
     })
   }
