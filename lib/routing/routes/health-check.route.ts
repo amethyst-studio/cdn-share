@@ -1,9 +1,9 @@
 import type { Request, Response } from 'restify'
 import { plugins } from 'restify'
 import type { CDNServer } from '../../../'
-import { GenericRoute } from '../route'
+import { GenericRouting } from '../route'
 
-export class Route extends GenericRoute {
+export class Route extends GenericRouting {
   public constructor (server: CDNServer) {
     super(server)
 
@@ -21,8 +21,9 @@ export class Route extends GenericRoute {
     })
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async handle (request: Request, response: Response): Promise<void> {
-    return response.json({
+    response.json({
       code: 200,
       message: 'OK'
     })
